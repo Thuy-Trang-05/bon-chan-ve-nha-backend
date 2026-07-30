@@ -8,7 +8,13 @@ auth.py — Mã hóa mật khẩu (bcrypt) và xác thực JWT (mục 2.3.5)
    thì trả về JWT → Client đính token vào header Authorization của các
    request tiếp theo."
 
-bam_mat_khau() / kiem_tra_mat_khau(): dùng passlib (thuật toán bcrypt).
+Dùng thẳng thư viện bcrypt (không qua lớp trung gian passlib) — passlib
+đã cũ (2020) và từng gây lỗi "password cannot be longer than 72 bytes"
+không ổn định giữa các phiên bản Python/bcrypt khác nhau (gặp cả trên
+máy cá nhân lẫn trên Railway khi dùng Python 3.13). Gọi thẳng bcrypt
+tránh hẳn lớp tương thích đó.
+
+bam_mat_khau() / kiem_tra_mat_khau(): mã hóa/so khớp mật khẩu bằng bcrypt.
 tao_jwt(): ký JWT gồm claim "sub" (nguoi_dung_id) và "vai_tro" — claim
   vai_tro chính là thứ TrangAdmin.jsx (frontend) cần đọc để quyết định
   có cho vào /admin hay không (đã ghi chú ở đầu file TrangAdmin.jsx).
@@ -18,8 +24,8 @@ giai_ma_jwt(): kiểm tra chữ ký + hạn dùng của token, dùng trong deps.
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+import bcrypt
 from jose import jwt, JWTError
-from passlib.context import CryptContext
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,15 +34,23 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "doi-chuoi-nay-truoc-khi-trien-khai
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_HET_HAN_PHUT = int(os.getenv("JWT_HET_HAN_PHUT", "1440"))  # mặc định 24 giờ
 
-_ngu_canh_mat_khau = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# bcrypt chỉ nhận tối đa 72 byte — cắt bớt cho an toàn thay vì để lỗi
+# nếu ai đó lỡ nhập mật khẩu quá dài.
+_GIOI_HAN_BYTE_BCRYPT = 72
 
 
 def bam_mat_khau(mat_khau_goc: str) -> str:
-    return _ngu_canh_mat_khau.hash(mat_khau_goc)
+    du_lieu = mat_khau_goc.encode("utf-8")[:_GIOI_HAN_BYTE_BCRYPT]
+    return bcrypt.hashpw(du_lieu, bcrypt.gensalt()).decode("utf-8")
 
 
 def kiem_tra_mat_khau(mat_khau_goc: str, mat_khau_da_bam: str) -> bool:
-    return _ngu_canh_mat_khau.verify(mat_khau_goc, mat_khau_da_bam)
+    du_lieu = mat_khau_goc.encode("utf-8")[:_GIOI_HAN_BYTE_BCRYPT]
+    try:
+        return bcrypt.checkpw(du_lieu, mat_khau_da_bam.encode("utf-8"))
+    except ValueError:
+        # mat_khau_da_bam không đúng định dạng bcrypt (vd: dữ liệu cũ hỏng)
+        return False
 
 
 def tao_jwt(nguoi_dung_id: int, vai_tro: str) -> str:
