@@ -1,25 +1,7 @@
-"""
-schemas.py — Pydantic schema: kiểm tra dữ liệu vào/ra API
------------------------------------------------------------------
-Khác với models.py (mô tả bảng trong MySQL), các class ở đây mô tả
-"hình dạng" dữ liệu JSON mà API nhận vào (Request Body) và trả ra
-(Response) — đúng như mục 2.3.2 tiểu luận: "FastAPI tự kiểm tra kiểu
-dữ liệu đầu vào/đầu ra nhờ Pydantic".
-
-Quy ước đặt tên trong file này:
-  - "...Tao"  = dữ liệu Client gửi lên khi TẠO mới (vd: DangKyTao)
-  - "...Ra"   = dữ liệu Server trả về cho Client (vd: NguoiDungRa)
-  - "...CapNhat" = dữ liệu Client gửi lên khi SỬA (PATCH/PUT)
-"""
-
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
-
-# ------------------------------------------------------------------
-# NGƯỜI DÙNG / XÁC THỰC (UC-01, UC-02)
-# ------------------------------------------------------------------
 class DangKyTao(BaseModel):
     ho_ten: str = Field(min_length=1, max_length=100)
     email: EmailStr
@@ -56,9 +38,6 @@ class TokenRa(BaseModel):
     nguoi_dung: NguoiDungRa
 
 
-# ------------------------------------------------------------------
-# HÌNH ẢNH
-# ------------------------------------------------------------------
 class HinhAnhRa(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -78,9 +57,6 @@ class ThuCungRaGon(BaseModel):
     loai: LoaiThuCungRaGon
 
 
-# ------------------------------------------------------------------
-# TIN ĐĂNG (UC-06, UC-07, UC-10, UC-12, UC-13)
-# ------------------------------------------------------------------
 class TinDangTao(BaseModel):
     loai_tin: str = Field(description="'Lạc mất' hoặc 'Tìm thấy'")
     ten_thu_cung: Optional[str] = None
@@ -125,9 +101,6 @@ class TinDangRa(BaseModel):
     thu_cung: Optional[ThuCungRaGon] = None
 
 
-# ------------------------------------------------------------------
-# TIN NHẮN (UC-18)
-# ------------------------------------------------------------------
 class TinNhanTao(BaseModel):
     tin_dang_id: int
     nguoi_nhan_id: int
@@ -146,9 +119,6 @@ class TinNhanRa(BaseModel):
     gui_luc: datetime
 
 
-# ------------------------------------------------------------------
-# BÁO CÁO VI PHẠM (UC-15)
-# ------------------------------------------------------------------
 class BaoCaoTao(BaseModel):
     ly_do: str = Field(min_length=1)
 
@@ -166,9 +136,6 @@ class BaoCaoRa(BaseModel):
     nguoi_bi_bao_cao: Optional[NguoiDangRaGon] = None
 
 
-# ------------------------------------------------------------------
-# THÔNG BÁO
-# ------------------------------------------------------------------
 class ThongBaoRa(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
