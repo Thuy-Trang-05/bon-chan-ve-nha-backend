@@ -1,22 +1,3 @@
-"""
-models.py — Định nghĩa 8 bảng dữ liệu (mục 4.2.2 tiểu luận)
------------------------------------------------------------------
-Mỗi class Python bên dưới ứng với đúng 1 bảng trong ERD (mục 4.2.1),
-tên cột và kiểu dữ liệu giữ nguyên theo đúng bảng mô tả trong tiểu
-luận để khớp với phần báo cáo.
-
-Quan hệ khóa ngoại dùng relationship() của SQLAlchemy để khi lấy 1
-NguoiDung, có thể truy cập luôn nguoi_dung.tin_dang (danh sách tin đã
-đăng) mà không cần viết JOIN thủ công.
-
-Ghi chú thiết kế: bảng TinDang không có cột loai_id trực tiếp — theo
-đúng ERD, loại thú cưng (Chó/Mèo/Khác) được gắn qua ThuCung.loai_id,
-và TinDang liên kết tới ThuCung qua thu_cung_id. Vì vậy khi đăng tin
-(UC-06/07), Backend sẽ tự tạo 1 bản ghi ThuCung tương ứng rồi mới tạo
-TinDang trỏ tới đó (xem routers/tin_dang_router.py) — để vẫn lọc được
-theo loại thú cưng ở Trang tìm kiếm mà không phá vỡ ERD đã thiết kế.
-"""
-
 from sqlalchemy import (
     Column, Integer, String, Text, Boolean, TIMESTAMP, DateTime,
     DECIMAL, ForeignKey, func,
@@ -98,7 +79,7 @@ class HinhAnh(Base):
     hinh_anh_id = Column(Integer, primary_key=True, autoincrement=True)
     tin_dang_id = Column(Integer, ForeignKey("tin_dang.tin_dang_id"), nullable=False)
     duong_dan = Column(String(255), nullable=False)
-    hash_anh = Column(String(64), nullable=True)  # Perceptual Hash — mục 2.3.6 (UC-19)
+    hash_anh = Column(String(64), nullable=True) 
     la_anh_chinh = Column(Boolean, default=False)
 
     tin_dang = relationship("TinDang", back_populates="hinh_anh")
