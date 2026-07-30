@@ -1,13 +1,3 @@
--- schema.sql — Tạo cơ sở dữ liệu "bon_chan_ve_nha" đúng ERD mục 4.2.1–4.2.2
--- -----------------------------------------------------------------------
--- Cách dùng: mở MySQL Workbench (đã nêu ở mục 2.3.3), kết nối tới MySQL,
--- mở file này và bấm nút "Execute" (icon tia sét) để chạy toàn bộ.
---
--- Ghi chú: FastAPI (qua Base.metadata.create_all trong app/main.py) cũng
--- tự tạo được các bảng này khi chạy lần đầu — dùng script SQL này nếu
--- bạn muốn chủ động xem/chỉnh ERD trực quan trong Workbench trước, đúng
--- quy trình đã mô tả trong tiểu luận.
-
 CREATE DATABASE IF NOT EXISTS bon_chan_ve_nha
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -26,7 +16,7 @@ CREATE TABLE IF NOT EXISTS nguoi_dung (
   ngay_tao        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Bảng 3: LoaiThuCung (tạo trước ThuCung vì ThuCung tham chiếu tới nó)
+-- Bảng 3: LoaiThuCung 
 CREATE TABLE IF NOT EXISTS loai_thu_cung (
   loai_id     INT AUTO_INCREMENT PRIMARY KEY,
   ten_loai    VARCHAR(50) NOT NULL
